@@ -10,7 +10,6 @@ app.views.Content = app.views.Base.extend({
       text : app.helpers.textFormatter(this.model.get("text"), this.model.get("mentioned_people")),
       largePhoto : this.largePhoto(),
       smallPhotos : this.smallPhotos(),
-      location: this.location(),
       isReshare : this.model.get("post_type") === "Reshare"
     });
   },
@@ -18,17 +17,15 @@ app.views.Content = app.views.Base.extend({
 
   largePhoto : function() {
     var photos = this.model.get("photos");
-    if(!photos || photos.length === 0) { return }
+    if (!photos || photos.length === 0) { return false; }
     return photos[0];
   },
 
   smallPhotos : function() {
     var photos = this.model.get("photos");
-    if(!photos || photos.length < 2) { return }
-    photos.splice(0, 1); // remove first photo as it is already shown as largePhoto
-    return photos;
+    if (!photos || photos.length < 2) { return false; }
+    return photos.slice(1); // remove first photo as it is already shown as largePhoto
   },
-
 
   expandPost: function(evt) {
     var el = $(this.el).find('.collapsible');
@@ -37,11 +34,6 @@ app.views.Content = app.views.Base.extend({
       el.css('height','auto');
     });
     $(evt.currentTarget).hide();
-  },
-
-  location: function(){
-    var address = this.model.get('address')? this.model.get('address') : '';
-    return address;
   },
 
   collapseOversized : function() {
@@ -71,8 +63,49 @@ app.views.Content = app.views.Base.extend({
     }
   },
 
+  // This function is called when user clicks cover for HTML5 embedded video
+  onVideoThumbClick: function(evt) {
+    var clickedThumb;
+    if ($(evt.target).hasClass("thumb")) {
+      clickedThumb = $(evt.target);
+    } else {
+      clickedThumb = $(evt.target).parent(".thumb");
+    }
+    clickedThumb.find(".video-overlay").addClass("hidden");
+    clickedThumb.parents(".collapsed").children(".expander").click();
+    var video = clickedThumb.find("video");
+    video.attr("controls", "");
+    video.get(0).load();
+    video.get(0).play();
+    clickedThumb.unbind("click");
+  },
+
+  bindMediaEmbedThumbClickEvent: function() {
+    this.$(".media-embed .thumb").bind("click", this.onVideoThumbClick);
+  },
+
   postRenderTemplate : function(){
+    this.bindMediaEmbedThumbClickEvent();
     _.defer(_.bind(this.collapseOversized, this));
+
+    // run collapseOversized again after all contained images are loaded
+    var self = this;
+    _.defer(function() {
+      self.$("img").each(function() {
+        this.addEventListener("load", function() {
+          // only fire if the top of the post is in viewport
+          var rect = self.el.getBoundingClientRect();
+          if(rect.top > 0) {
+            self.collapseOversized.call(self);
+          }
+        });
+      });
+    });
+
+    var photoAttachments = this.$(".photo-attachments");
+    if(photoAttachments.length > 0) {
+      new app.views.Gallery({ el: photoAttachments });
+    }
   }
 });
 
@@ -82,6 +115,12 @@ app.views.StatusMessage = app.views.Content.extend({
 
 app.views.ExpandedStatusMessage = app.views.StatusMessage.extend({
   postRenderTemplate : function(){
+    this.bindMediaEmbedThumbClickEvent();
+
+    var photoAttachments = this.$(".photo-attachments");
+    if(photoAttachments.length > 0) {
+      new app.views.Gallery({ el: photoAttachments });
+    }
   }
 });
 
@@ -129,6 +168,10 @@ app.views.OEmbed = app.views.Base.extend({
 app.views.OpenGraph = app.views.Base.extend({
   templateName : "opengraph",
 
+  events: {
+    "click .video-overlay": "loadVideo"
+  },
+
   initialize: function() {
     this.truncateDescription();
   },
@@ -139,6 +182,12 @@ app.views.OpenGraph = app.views.Base.extend({
       var ogdesc = this.model.get('open_graph_cache');
       ogdesc.description = app.helpers.truncate(ogdesc.description, 250);
     }
+  },
+
+  loadVideo: function() {
+    this.$(".opengraph-container").html(
+      "<iframe src='" + this.$(".video-overlay").attr("data-video-url") + "' frameBorder=0 width='100%'></iframe>"
+    );
   }
 });
 
@@ -147,4 +196,5 @@ app.views.SPVOpenGraph = app.views.OpenGraph.extend({
     // override with nothing
   }
 });
+
 // @license-end

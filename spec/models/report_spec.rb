@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 #   Copyright (c) 2010-2011, Diaspora Inc.  This file is
 #   licensed under the Affero General Public License version 3 or later.  See
 #   the COPYRIGHT file.
-
-require 'spec_helper'
 
 describe Report, :type => :model do
   before do
@@ -12,14 +12,12 @@ describe Report, :type => :model do
     @bob_comment = @user.comment!(@bob_post, "welcome")
 
     @valid_post_report = {
-      :item_id => @bob_post.id,
-      :item_type => 'post',
-      :text => 'offensive content'
+      item_id: @bob_post.id, item_type: "Post",
+      text: "offensive content"
     }
     @valid_comment_report = {
-      :item_id => @bob_comment.id,
-      :item_type => 'comment',
-      :text => 'offensive content'
+      item_id: @bob_comment.id, item_type: "Comment",
+      text: "offensive content"
     }
   end
 

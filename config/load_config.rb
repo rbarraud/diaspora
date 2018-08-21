@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pathname"
 require "bundler/setup"
 require "configurate"
@@ -26,7 +28,7 @@ AppConfig ||= Configurate::Settings.create do
 
   add_provider Configurate::Provider::YAML,
                File.join(config_dir, "diaspora.yml"),
-               namespace: rails_env, required: false unless rails_env == "test"
+               namespace: rails_env, required: false
   add_provider Configurate::Provider::YAML,
                File.join(config_dir, "diaspora.yml"),
                namespace: "configuration", required: false

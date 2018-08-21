@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #   Copyright (c) 2010-2012, Diaspora Inc.  This file is
 #   licensed under the Affero General Public License version 3 or later.  See
 #   the COPYRIGHT file.
@@ -5,7 +7,17 @@
 class ApplicationController < ActionController::Base
   before_action :force_tablet_html
   has_mobile_fu
-  protect_from_forgery :except => :receive
+  protect_from_forgery except: :receive, with: :exception, prepend: true
+
+  rescue_from ActionController::InvalidAuthenticityToken do
+    if user_signed_in?
+      logger.warn "#{current_user.diaspora_handle} CSRF token fail. referer: #{request.referer || 'empty'}"
+      Workers::Mail::CsrfTokenFail.perform_async(current_user.id)
+      sign_out current_user
+    end
+    flash[:error] = I18n.t("error_messages.csrf_token_fail")
+    redirect_to new_user_session_path format: request[:format]
+  end
 
   before_action :ensure_http_referer_is_set
   before_action :set_locale
@@ -16,7 +28,7 @@ class ApplicationController < ActionController::Base
   before_action :gon_set_appconfig
   before_action :gon_set_preloads
 
-  inflection_method :grammatical_gender => :gender
+  inflection_method grammatical_gender: :gender
 
   helper_method :all_aspects,
                 :all_contacts_count,
@@ -35,16 +47,12 @@ class ApplicationController < ActionController::Base
   end
 
   def ensure_http_referer_is_set
-    request.env['HTTP_REFERER'] ||= '/'
+    request.env["HTTP_REFERER"] ||= "/"
   end
 
   # Overwriting the sign_out redirect path method
   def after_sign_out_path_for(resource_or_scope)
-    if is_mobile_device?
-      root_path
-    else
-      new_user_session_path
-    end
+    is_mobile_device? ? root_path : new_user_session_path
   end
 
   def all_aspects
@@ -72,11 +80,11 @@ class ApplicationController < ActionController::Base
   end
 
   def set_diaspora_header
-    headers['X-Diaspora-Version'] = AppConfig.version_string
+    headers["X-Diaspora-Version"] = AppConfig.version_string
 
     if AppConfig.git_available?
-      headers['X-Git-Update'] = AppConfig.git_update if AppConfig.git_update.present?
-      headers['X-Git-Revision'] = AppConfig.git_revision if AppConfig.git_revision.present?
+      headers["X-Git-Update"] = AppConfig.git_update if AppConfig.git_update.present?
+      headers["X-Git-Revision"] = AppConfig.git_revision if AppConfig.git_revision.present?
     end
   end
 
@@ -91,10 +99,13 @@ class ApplicationController < ActionController::Base
   end
 
   def redirect_unless_admin
-    unless current_user.admin?
-      redirect_to stream_url, :notice => 'you need to be an admin to do that'
-      return
-    end
+    return if current_user.admin?
+    redirect_to stream_url, notice: "you need to be an admin to do that"
+  end
+
+  def redirect_unless_moderator
+    return if current_user.moderator?
+    redirect_to stream_url, notice: "you need to be an admin or moderator to do that"
   end
 
   def set_grammatical_gender
@@ -102,7 +113,7 @@ class ApplicationController < ActionController::Base
       gender = current_user.gender.to_s.tr('!()[]"\'`*=|/\#.,-:', '').downcase
       unless gender.empty?
         i_langs = I18n.inflector.inflected_locales(:gender)
-        i_langs.delete  I18n.locale
+        i_langs.delete I18n.locale
         i_langs.unshift I18n.locale
         i_langs.each do |lang|
           token = I18n.inflector.true_token(gender, :gender, lang)
@@ -140,13 +151,23 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_redirect_path
-    current_user.getting_started? ? getting_started_path : stream_path
+    # If getting started is active AND the user has not completed the getting_started page
+    if current_user.getting_started? && !current_user.basic_profile_present?
+      getting_started_path
+    else
+      stream_path
+    end
   end
 
   def gon_set_appconfig
     gon.push(appConfig: {
                chat:     {enabled: AppConfig.chat.enabled?},
-               settings: {podname: AppConfig.settings.pod_name}
+               settings: {podname: AppConfig.settings.pod_name},
+               map:      {mapbox: {
+                 enabled:      AppConfig.map.mapbox.enabled?,
+                 access_token: AppConfig.map.mapbox.access_token,
+                 style:        AppConfig.map.mapbox.style
+               }}
              })
   end
 
@@ -154,7 +175,7 @@ class ApplicationController < ActionController::Base
     return unless user_signed_in?
     a_ids = session[:a_ids] || []
     user = UserPresenter.new(current_user, a_ids)
-    gon.push({:user => user})
+    gon.push(user: user)
   end
 
   def gon_set_preloads

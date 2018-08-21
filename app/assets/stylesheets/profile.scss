@@ -1,15 +1,15 @@
 #profile_container {
   .profile_header {
-    margin-bottom: 20px;
-    border-left: 1px solid #dddddd;
+    margin-bottom: 15px;
+    background-color: $framed-background;
     padding-left: 10px;
+    padding-right: 10px;
     padding-top: 20px;
-    margin-left: -10px;
     margin-top: -20px;
+    box-shadow: $card-shadow;
 
-    #edit_profile, #unblock_user_button, .aspect_dropdown {
-      margin-top: 5px;
-      margin-right: 10px;
+    #edit_profile, #unblock_user_button, .aspect-dropdown {
+      margin-top: 15px;
     }
 
     #author_info {
@@ -22,7 +22,7 @@
         font-weight: 700;
       }
       #diaspora_handle {
-        color: $text-grey;
+        color: $text-color-pale;
         font-size: 20px;
       }
       #sharing_message {
@@ -51,9 +51,8 @@
       }
     }
 
-    #profile_horizontal_bar {
+    #profile-horizontal-bar {
       border-top: 1px dashed $border-grey;
-      border-bottom: 1px solid $border-grey;
       min-height: 50px;
       margin-top: 10px;
       #profile_buttons {
@@ -65,8 +64,8 @@
           .profile-header-icon {
             font-size: 24.5px;
             line-height: 30px;
-            color: lighten($black,75%);
-            &:hover { color: $black; }
+            color: $text-color-pale;
+            &:hover { color: $text-color; }
           }
           #mention_button { font-weight: 700; }
         }
@@ -81,8 +80,12 @@
           &.active {
             border-bottom: 3px solid $brand-primary;
             a {
-              color: $black;
-              [class^="entypo-"], [class*="entypo-"] { color: $black; }
+              color: $text-color-active;
+
+              [class^="entypo-"],
+              [class*="entypo-"] {
+                color: $text-color-active;
+              }
             }
           }
           a {
@@ -95,9 +98,13 @@
               margin-right: 2px;
             }
             &:hover {
-              color: $black;
-              [class^="entypo-"], [class*="entypo-"] { color: $black; }
+              color: $text-color-active;
               text-decoration: none;
+
+              [class^="entypo-"],
+              [class*="entypo-"] {
+                color: $text-color-active;
+              }
             }
           }
         }
@@ -106,15 +113,17 @@
   }
 
   #profile {
-    padding: 10px 20px;
+    padding: 20px;
+    margin-bottom: 35px;
+
     #profile_photo {
       margin-top: 10px;
       padding-bottom: 10px;
-      border-bottom: 1px dashed $border-grey;
       text-align: center;
     }
 
     ul#profile_information {
+      border-top: 1px dashed $border-grey;
       margin: 0;
       padding: 0;
       list-style: none;
@@ -128,7 +137,12 @@
 
   }
 
-  .stream_container > .pagination { text-align: center; }
+  .stream-container > .pagination { text-align: center; }
+
+  #people-stream {
+    background-color: $white;
+    box-shadow: $card-shadow;
+  }
 }
 
 #email-form{

@@ -14,7 +14,7 @@
           = locale_date(date)
       %ul.notifications_for_day
         - notes.each do |note|
-          .stream_element{data: {guid: note.id}, class: "#{note.unread ? "unread" : "read"}"}
+          .stream-element{data: {guid: note.id}, class: (note.unread ? "unread" : "read")}
             .content.from
               .media
                 .media-left
@@ -24,4 +24,9 @@
                   .time_notif
                     = timeago(note.created_at)
 
-  = will_paginate @notifications, renderer: WillPaginate::ActionView::BootstrapLinkRenderer
+  = will_paginate @notifications,
+    previous_label: "&laquo;",
+    next_label: "&raquo;",
+    inner_window: 1,
+    outer_window: 0,
+    renderer: WillPaginate::ActionView::BootstrapLinkRenderer

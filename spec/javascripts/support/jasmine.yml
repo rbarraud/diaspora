@@ -40,7 +40,7 @@ stylesheets:
 #   - helpers/**/*.jsview
 #
 helpers:
-  - helpers/**/*.js
+  - jasmine_helpers/**/*.js
 
 # spec_files
 #
@@ -53,6 +53,7 @@ helpers:
 #   - **/*[sS]pec.js
 #
 spec_files:
+  - onerror-fail.js
   - "**/**/*[sS]pec.js"
 
 # src_dir
@@ -76,3 +77,9 @@ src_dir:
 # spec_dir: spec/javascripts
 #
 spec_dir: spec/javascripts
+
+rack_options:
+  Host: '0.0.0.0'
+
+# TODO: refactor tests, they shouldn't fail when they are run in a random order!
+random: false

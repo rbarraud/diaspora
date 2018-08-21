@@ -1,75 +1,86 @@
-@import "bootstrap-complete.scss";
+@import 'utatti-perfect-scrollbar/css/perfect-scrollbar';
 
-@import 'perfect-scrollbar';
-
-@import "colors";
+@import 'color-variables';
+@import 'bootstrap-complete';
 @import 'mixins';
 
-/* core */
+
+// core
 @import 'media-box';
-@import 'autocomplete';
 @import 'entypo';
 @import 'icons';
-@import 'mentions';
+@import 'animations';
 @import 'flash_messages';
 @import 'sprites';
 @import 'hovercard';
-@import 'new_styles/base';
-@import 'new_styles/interactions';
-@import 'new_styles/spinner';
-@import 'lightbox';
+@import 'base';
+@import 'interactions';
+@import 'spinner';
 @import 'timeago';
-@import 'vendor/fileuploader';
 @import 'vendor/autoSuggest';
+@import 'typeahead';
+@import 'colors';
+@import 'card-footer';
 
-/* font overrides */
-@import 'new_styles/typography';
+// font overrides
+@import 'typography';
 
-/* login */
-@import 'new_styles/login';
-@import 'new_styles/registration';
-@import 'new_styles/forms';
+// layout
+@import 'sidebar';
 
-/* terms */
+// home
+@import 'home';
+
+// login
+@import 'login';
+@import 'registration';
+@import 'forms';
+
+// terms
 @import 'terms';
 
-/* profile and settings pages */
-@import 'new_styles/settings';
+// profile and settings pages
+@import 'settings';
+@import 'cropperjs/dist/cropper';
 
-/* new SPV */
+// new SPV
 @import 'header';
 @import 'footer';
 @import 'opengraph';
 @import 'single-post-view';
-@import 'new_styles/poll';
+@import 'poll';
 
-/* conversations */
+// map
+@import 'leaflet';
+@import 'map';
+
+// conversations
 @import 'conversations';
 
-/* publisher */
+// publisher
 @import 'publisher';
 @import 'aspects';
+@import 'markdown-editor';
 
-/* bookmarklet */
+// bookmarklet
 @import 'bookmarklet';
 
-/* notifications */
+// notifications
 @import 'notifications';
 
-/* help */
+// help
 @import 'help';
 
-/* getting started */
+// getting started
 @import 'getting-started';
 
-/* people */
+// people
 @import 'people';
 @import 'invitations';
 @import 'profile';
 
-/* stream */
+// stream
 @import 'tag';
-@import 'stream-faces';
 @import 'stream';
 @import 'stream_element';
 @import 'comments';
@@ -77,20 +88,27 @@
 @import 'chat';
 @import 'markdown-content';
 @import 'oembed';
+@import 'media-embed';
 @import 'post-content';
 
-/* right bar */
-@import 'sidebar';
-
-/* contacts */
+// contacts
 @import 'contacts';
-@import 'leftnavbar';
+@import 'navbar_left';
 
-/* code */
-@import 'new_styles/code';
+// code
+@import 'code';
 @import 'highlightjs/github';
 
-/* statistics */
-@import 'new_styles/statistics';
+// statistics
+@import 'statistics';
 
-@import "bootstrap3-switch";
+// gallery
+@import 'blueimp-gallery';
+@import 'blueimp-gallery/blueimp-gallery-indicator';
+@import 'gallery';
+
+// settings
+@import 'user_applications';
+
+// OpenID Connect (API)
+@import 'openid_connect_error_page';

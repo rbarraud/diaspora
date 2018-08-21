@@ -14,11 +14,19 @@
           %i
             = t('devise.passwords.new.no_account') # this is an error message and should not be displayed as a legend
       %fieldset
-        %label{for: "user_email"}
-          = t('devise.passwords.new.email')
+        %label#emailLabel.sr-only{for: "user_email"}
+          = t("devise.passwords.new.email")
         %i.entypo-mail
-        = f.text_field :email, class: "input-block-level form-control", required: true, autocapitalize: "off", placeholder: t('devise.passwords.new.email'), autocorrect: "off", autofocus: true
-      = f.submit t('devise.passwords.new.send_password_instructions'), class: "btn btn-block btn-default"
+        = f.text_field :email,
+                       class:          "input-block-level form-control",
+                       required:       true,
+                       autocapitalize: "none",
+                       placeholder:    t("devise.passwords.new.email"),
+                       autocorrect:    "off",
+                       autofocus:      true,
+                       aria:           {labelledby: "emailLabel"}
+
+      = f.submit t("devise.passwords.new.send_password_instructions"), class: "btn btn-block btn-primary"
 
     .text-center
       = link_to t('devise.shared.links.sign_in'), new_session_path(resource_name)

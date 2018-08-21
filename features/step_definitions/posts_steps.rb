@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Then /^the post should be collapsed$/ do
   first_post_collapsed?
 end
@@ -7,7 +9,7 @@ Then /^the post should be expanded$/ do
 end
 
 Then /^I should see an uploaded image within the photo drop zone$/ do
-  find("#photodropzone img")["src"].should include("uploads/images")
+  expect(find("#photodropzone img")["src"]).to include("uploads/images")
 end
 
 Then /^I should not see an uploaded image within the photo drop zone$/ do
@@ -15,16 +17,52 @@ Then /^I should not see an uploaded image within the photo drop zone$/ do
 end
 
 Then /^I should not see any posts in my stream$/ do
-  page.assert_selector(".stream_element", count: 0)
+  expect(page).not_to have_selector("#paginate .loader")
+  expect(page).not_to have_selector(".stream-element .media")
+  expect(page).to have_selector(".stream-element .no-posts-info")
+end
+
+Then /^I should not see any picture in my stream$/ do
+  expect(page).to have_selector(".photo_area img", count: 0)
+end
+
+Then /^I should see (\d+) pictures in my stream$/ do |count|
+  expect(page).to have_selector(".photo_area img", count: count)
 end
 
 Then /^I should not be able to submit the publisher$/ do
   expect(publisher_submittable?).to be false
 end
 
+Then /^I should see "([^"]*)" in the publisher$/ do |text|
+  expect(page).to have_field("status_message[text]", with: text)
+end
+
+Given /^I have a limited post with text "([^\"]*)" in the aspect "([^"]*)"$/ do |text, aspect_name|
+  @me.post :status_message, text: text, to: @me.aspects.where(name: aspect_name).first.id
+end
+
 Given /^"([^"]*)" has a public post with text "([^"]*)"$/ do |email, text|
   user = User.find_by_email(email)
   user.post(:status_message, :text => text, :public => true, :to => user.aspect_ids)
+end
+
+Given /^"([^"]*)" has a public post with text "([^"]*)" and a poll$/ do |email, text|
+  user = User.find_by(email: email)
+  post = user.post(:status_message, text: text, public: true, to: user.aspect_ids)
+  FactoryGirl.create(:poll, status_message: post)
+end
+
+Given /^"([^"]*)" has a public post with text "([^"]*)" and a location$/ do |email, text|
+  user = User.find_by(email: email)
+  post = user.post(:status_message, text: text, public: true, to: user.aspect_ids)
+  FactoryGirl.create(:location, status_message: post)
+end
+
+Given /^"([^"]*)" has a public post with text "([^"]*)" and a picture/ do |email, text|
+  user = User.find_by(email: email)
+  post = user.post(:status_message, text: text, public: true, to: user.aspect_ids)
+  FactoryGirl.create(:photo, status_message: post)
 end
 
 Given /^there are (\d+) public posts from "([^"]*)"$/ do |n_posts, email|
@@ -50,7 +88,7 @@ And /^I submit the publisher$/ do
 end
 
 When /^I click on the first block button/ do
-  find(".stream_element", match: :first).hover
+  find(".stream-element", match: :first).hover
   find(".block_user").click
 end
 
@@ -60,10 +98,6 @@ end
 
 When /^I expand the post$/ do
   expand_first_post
-end
-
-Then /^I should see "([^"]*)" as the first post in my stream$/ do |text|
-  first_post_text.should include(text)
 end
 
 When /^I click the publisher and post "([^"]*)"$/ do |text|
@@ -86,10 +120,6 @@ When /^I append "([^"]*)" to the publisher$/ do |text|
   append_to_publisher(text)
 end
 
-When /^I append "([^"]*)" to the mobile publisher$/ do |text|
-  append_to_publisher(text, '#status_message_text')
-end
-
 When /^I attach "([^"]*)" to the publisher$/ do |path|
   upload_file_with_publisher(path)
 end
@@ -100,7 +130,7 @@ end
 
 When /^I select "([^"]*)" on the aspect dropdown$/ do |text|
   page.execute_script(
-    "$('#publisher .dropdown .dropdown_list, #publisher .aspect_dropdown .dropdown-menu')
+    "$('#publisher .dropdown .dropdown_list, #publisher .aspect-dropdown .dropdown-menu')
       .find('li').each(function(i,el){
       var elem = $(el);
       if ('" + text + "' == $.trim(elem.text()) ) {

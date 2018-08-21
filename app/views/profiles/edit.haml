@@ -3,11 +3,12 @@
 -#   the COPYRIGHT file.
 
 .container-fluid
-  = render "shared/settings_nav"
-
-  .container-fluid
-    .row
-      .col-lg-8.col-lg-offset-2
+  .row
+    .col-md-3
+      .sidebar
+        = render "shared/settings_nav"
+    .col-md-9
+      .framed-content.clearfix
         - content_for :submit_block do
           = link_to t("cancel"), local_or_remote_person_path(current_user.person), class: "btn btn-default"
           = submit_tag t(".update_profile"), class: "btn btn-primary pull-right", id: "update_profile"

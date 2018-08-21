@@ -2,8 +2,18 @@
 -#   licensed under the Affero General Public License version 3 or later.  See
 -#   the COPYRIGHT file.
 
-.settings_container
-  - content_for :page_title do
-    = t('.title')
+- flash.each do |name, msg|
+  .alert{class: "alert-#{flash_class name}", role: "alert"}
+    = msg
 
-  = render "privacy_settings"
+- content_for :page_title do
+  = t(".title")
+
+.settings-container.container-fluid
+  .row
+    .col-md-12
+      = render "shared/settings_nav"
+
+  .row
+    .col-md-12
+      = render "privacy_settings"

@@ -3,18 +3,21 @@
 -#   the COPYRIGHT file.
 
 - content_for :page_title do
-  = t('.edit_services')
+  = t(".edit_services")
 
 .container-fluid
-  = render 'shared/settings_nav'
+  .row
+    .col-md-3
+      .sidebar
+        = render "shared/settings_nav"
+    .col-md-9
+      .framed-content.clearfix
+        %h3= t(".title")
+        .row
+          .col-md-12
+            = render "add_remove_services"
 
-  .container-fluid
-    .row
-      .col-lg-8.col-lg-offset-2
-        %h3= t('.title')
-        .col-md-7
-          = render 'add_remove_services'
-
-        .col-md-5
-          %p
-            = t('.services_explanation')
+        .row
+          .col-md-12
+            %p
+              = t(".services_explanation")

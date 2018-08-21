@@ -10,10 +10,6 @@ ul.as-selections {
   padding: 0;
 }
 
-ul.as-selections.loading {
-  background: asset_path("ajax-loader2.gif") right center no-repeat;
-}
-
 ul.as-selections li {
   float: left;
   margin: 1px 4px 1px 0;
@@ -158,20 +154,6 @@ li.as-result-item em {
 li.as-result-item.active em {
   background: #253f7a;
   color: #fff;
-}
-
-/* Webkit Hacks  */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  ul.as-selections li.as-selection-item {
-    padding-top: 6px;
-    padding-bottom: 6px;
-  }
-  ul.as-selections li.as-selection-item a.as-close {
-    margin-top: -1px;
-  }
-  ul.as-selections li.as-original input {
-    height: 20px;
-  }
 }
 
 /* Opera Hacks  */

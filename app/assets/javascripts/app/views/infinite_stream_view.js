@@ -13,8 +13,10 @@ app.views.InfScroll = app.views.Base.extend({
     this.postViews = this.postViews || [];
     this._resetPostFragments();
 
+    this.showLoader();
     this.bind("loadMore", this.fetchAndshowLoader, this);
     this.stream.bind("fetched", this.finishedLoading, this);
+    this.stream.bind("allItemsLoaded", this.showNoPostsInfo, this);
     this.stream.bind("allItemsLoaded", this.unbindInfScroll, this);
 
     this.collection.bind("add", this.addPostView, this);
@@ -26,10 +28,6 @@ app.views.InfScroll = app.views.Base.extend({
   _resetPostFragments: function() {
     this.appendedPosts  = document.createDocumentFragment();
     this.prependedPosts = document.createDocumentFragment();
-  },
-
-  postRenderTemplate : function() {
-    if(this.stream.isFetching()) { this.showLoader() }
   },
 
   createPostView : function(post){
@@ -50,6 +48,19 @@ app.views.InfScroll = app.views.Base.extend({
         this.prependedPosts.insertBefore(el, this.prependedPosts.firstChild);
     } else {
         this.appendedPosts.appendChild(el);
+    }
+  },
+
+  postRenderTemplate: function() {
+    if (this.postViews.length > 0) {
+      this.$(".no-posts-info").closest(".stream-element").remove();
+    }
+  },
+
+  showNoPostsInfo: function() {
+    if (this.postViews.length === 0) {
+      var noPostsInfo = new app.views.NoPostsInfo();
+      this.$el.append(noPostsInfo.render().el);
     }
   },
 
@@ -85,6 +96,7 @@ app.views.InfScroll = app.views.Base.extend({
     this.$el.prepend(this.prependedPosts);
     this.$el.append(this.appendedPosts);
     this._resetPostFragments();
+    this.postRenderTemplate();
   },
 
   finishedLoading: function() {
@@ -97,12 +109,12 @@ app.views.InfScroll = app.views.Base.extend({
   },
 
   infScroll : function() {
-    var $window = $(window)
-      , distFromTop = $window.height() + $window.scrollTop()
-      , distFromBottom = $(document).height() - distFromTop
-      , bufferPx = 500;
+    var $window = $(window),
+        distFromBottom = $(document).height() - $window.height() - $window.scrollTop(),
+        lastElOffset = this.$el.children().last().offset(),
+        elementDistance = lastElOffset ? lastElOffset.top - $window.scrollTop() - 500 : 1;
 
-    if(distFromBottom < bufferPx) {
+    if(elementDistance <= 0 || distFromBottom < 500) {
       this.trigger("loadMore");
     }
   }
